@@ -13,22 +13,30 @@
           </template>
         </a-button-group>
       </template>
+      <a-table :columns="tableColumns" :data-source="tableDatas" rowKey="ID"> </a-table>
     </page-header-wrapper>
   </div>
 </template>
 <script>
-import { dynamic_button } from '@/api/dynamic'
+import { dynamic_button, dynamic_data } from '@/api/dynamic'
 export default {
   data() {
     return {
       conditionButtons: [],
-      tableButtons: []
+      tableButtons: [],
+      tableColumns: [],
+      tableDatas: []
     }
   },
   mounted() {
     dynamic_button(this.$route.meta.permission).then(response => {
       this.conditionButtons = response.data.conditionButtons
       this.tableButtons = response.data.tableButtons
+    })
+    const vo = { menuId: this.$route.meta.permission, limit: 100, page: 1 }
+    dynamic_data(vo).then(response => {
+      this.tableColumns = response.data.column
+      this.tableDatas = response.data.list
     })
   },
   methods: {
@@ -51,5 +59,8 @@ export default {
   button:nth-of-type(1n) {
     margin-left: 5px;
   }
+}
+/deep/ .ant-pro-page-header-wrap-children-content {
+  margin: 10px 10px 0;
 }
 </style>

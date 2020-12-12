@@ -1,12 +1,12 @@
 <template>
   <div>
-    <dynamic ref="dynamic" />
+    <dynamic-query ref="dynamicQuery" />
   </div>
 </template>
 <script>
-import dynamic from '@/views/common/dynamic'
+import dynamicQuery from '@/views/common/dynamicQuery'
 export default {
-  components: { dynamic },
+  components: { dynamicQuery },
   methods: {
     add() {
       alert('add')
