@@ -20,6 +20,8 @@
         :rowClassName="rowClassName"
         :pagination="paginationOption"
         :loading="loading"
+        @change="handleTableChange"
+        :sortDirections="['descend', 'ascend']"
       >
         <template slot="statusColumn" slot-scope="statusColumn">
           <a-tag :color="statusColumn | statusFilter(app0)">
@@ -55,6 +57,10 @@ export default {
       tableDatas: [],
       statusMap: [],
       loading: false,
+      sort: {
+        field: 'ID',
+        order: 'descend',
+      },
       paginationOption: {
         defaultCurrent: 1, // 默认当前页数
         defaultPageSize: 10, // 默认当前页显示数据的大小
@@ -103,6 +109,7 @@ export default {
         menuId: this.$route.meta.permission,
         limit: this.paginationOption.defaultPageSize,
         page: this.paginationOption.defaultCurrent,
+        sort: this.sort,
       }
       this.loading = true
       dynamic_data(vo)
@@ -124,6 +131,17 @@ export default {
       if (actionScope == 'parent') {
         this.$parent.$options.methods[actionName].bind(this.$parent)()
       }
+    },
+    handleTableChange(pagination, filters, { field, order }) {
+      this.sort = {
+        field: field || '',
+        order: order || '',
+      }
+
+      console.log(this.sort)
+
+      this.paginationOption.current = pagination.current
+      this.list()
     },
     getDate(row, format) {
       if (row == null || row == '') {
