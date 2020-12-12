@@ -13,19 +13,28 @@
           </template>
         </a-button-group>
       </template>
-      <a-table :columns="tableColumns" :data-source="tableDatas" rowKey="ID"> </a-table>
+      <a-table :columns="tableColumns" :data-source="tableDatas" :rowClassName="rowClassName">
+        <template slot="statusColumn" slot-scope="statusColumn">
+          <a-tag :color="statusColumn | statusFilter(app0)">
+            {{ statusColumn }}
+          </a-tag>
+        </template>
+      </a-table>
     </page-header-wrapper>
   </div>
 </template>
 <script>
 import { dynamic_button, dynamic_data } from '@/api/dynamic'
+
 export default {
   data() {
     return {
+      app0: this,
       conditionButtons: [],
       tableButtons: [],
       tableColumns: [],
-      tableDatas: []
+      tableDatas: [],
+      statusMap: []
     }
   },
   mounted() {
@@ -37,7 +46,21 @@ export default {
     dynamic_data(vo).then(response => {
       this.tableColumns = response.data.column
       this.tableDatas = response.data.list
+      this.statusMap = response.data.statusMap
     })
+  },
+  filters: {
+    statusFilter(type, app0) {
+      const defaultColor = 'blue'
+      if (app0.statusMap) {
+        if (app0.statusMap[type] == null || app0.statusMap[type] == '') {
+          return defaultColor
+        }
+        return app0.statusMap[type]
+      } else {
+        return defaultColor
+      }
+    }
   },
   methods: {
     list() {
@@ -50,6 +73,9 @@ export default {
       if (actionScope == 'parent') {
         this.$parent.$options.methods[actionName].bind(this.$parent)()
       }
+    },
+    rowClassName(record, index) {
+      return index % 2 === 1 ? 'light-row' : ''
     }
   }
 }
@@ -62,5 +88,8 @@ export default {
 }
 /deep/ .ant-pro-page-header-wrap-children-content {
   margin: 10px 10px 0;
+}
+/deep/ .light-row {
+  background-color: #fff;
 }
 </style>
