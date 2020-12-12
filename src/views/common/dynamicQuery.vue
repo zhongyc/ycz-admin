@@ -13,7 +13,14 @@
           </template>
         </a-button-group>
       </template>
-      <a-table :columns="tableColumns" :data-source="tableDatas" :rowClassName="rowClassName">
+
+      <a-table
+        :columns="tableColumns"
+        :data-source="tableDatas"
+        :rowClassName="rowClassName"
+        :pagination="paginationOption"
+        :loading="loading"
+      >
         <template slot="statusColumn" slot-scope="statusColumn">
           <a-tag :color="statusColumn | statusFilter(app0)">
             {{ statusColumn }}
@@ -48,6 +55,26 @@ export default {
       tableDatas: [],
       statusMap: [],
       loading: false,
+      paginationOption: {
+        defaultCurrent: 1, // 默认当前页数
+        defaultPageSize: 10, // 默认当前页显示数据的大小
+        total: 0, // 总数，必须先有
+        showSizeChanger: true,
+        showQuickJumper: true,
+        pageSizeOptions: ['5', '10', '15', '20'],
+        showTotal: (total) => `共 ${total} 条`, // 显示总数
+        onShowSizeChange: (current, pageSize) => {
+          this.paginationOption.defaultCurrent = 1
+          this.paginationOption.defaultPageSize = pageSize
+          this.list() //显示列表的接口名称
+        },
+        // 改变每页数量时更新显示
+        onChange: (current, size) => {
+          this.paginationOption.defaultCurrent = current
+          this.paginationOption.defaultPageSize = size
+          this.list()
+        },
+      },
     }
   },
   mounted() {
@@ -55,18 +82,7 @@ export default {
       this.conditionButtons = response.data.conditionButtons
       this.tableButtons = response.data.tableButtons
     })
-    const vo = { menuId: this.$route.meta.permission, limit: 100, page: 1 }
-    this.loading = true
-    dynamic_data(vo)
-      .then((response) => {
-        this.tableColumns = response.data.column
-        this.tableDatas = response.data.list
-        this.statusMap = response.data.statusMap
-        this.loading = false
-      })
-      .catch(() => {
-        this.loading = false
-      })
+    this.list()
   },
   filters: {
     statusFilter(type, app0) {
@@ -83,7 +99,23 @@ export default {
   },
   methods: {
     list() {
-      alert('list')
+      const vo = {
+        menuId: this.$route.meta.permission,
+        limit: this.paginationOption.defaultPageSize,
+        page: this.paginationOption.defaultCurrent,
+      }
+      this.loading = true
+      dynamic_data(vo)
+        .then((response) => {
+          this.tableColumns = response.data.column
+          this.tableDatas = response.data.list
+          this.statusMap = response.data.statusMap
+          this.paginationOption.total = response.data.total
+          this.loading = false
+        })
+        .catch(() => {
+          this.loading = false
+        })
     },
     action(actionName, actionScope) {
       if (actionScope == 'self') {
