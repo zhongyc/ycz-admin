@@ -2,10 +2,17 @@
   <div>
     <page-header-wrapper :title="false">
       <template v-slot:content>
-        <a-row>
+        <a-row :gutter="10">
           <template v-for="(item, index) in conditions">
             <a-col :span="4" :key="index">
               <a-input v-if="item.type === 1" v-model="item.value" :placeholder="item.label" allowClear />
+              <a-range-picker
+                v-if="item.type === 3"
+                v-model="item.value"
+                :placeholder="[item.label, item.label]"
+                @change="onChange"
+                allowClear
+              />
             </a-col>
           </template>
         </a-row>
