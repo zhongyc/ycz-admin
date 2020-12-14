@@ -9,10 +9,37 @@
               <a-range-picker
                 v-if="item.type === 3"
                 v-model="item.value"
+                style="width: 100%"
                 :placeholder="[item.label, item.label]"
-                @change="onChange"
                 allowClear
               />
+              <a-select
+                show-search
+                v-model="item.value"
+                v-if="item.type === 4"
+                style="width: 100%"
+                :placeholder="item.label"
+                :default-active-first-option="false"
+                :show-arrow="false"
+                :filter-option="false"
+                :not-found-content="null"
+                @search="handleSearch"
+                @focus="handleSelectFocus(item)"
+                @select="handleSelectChange"
+                allowClear
+              >
+                <a-select-option v-for="(col, index) in selectedItem.options" :key="index">
+                  <a-row>
+                    <template v-for="(displayColumn, index_display) in col.columns">
+                      <a-col :key="index_display" :span="displayColumn.span">
+                        <div>
+                          {{ col.obj[displayColumn.dataIndex] }}
+                        </div>
+                      </a-col>
+                    </template>
+                  </a-row>
+                </a-select-option>
+              </a-select>
             </a-col>
           </template>
         </a-row>
@@ -59,6 +86,7 @@
 </template>
 <script>
 import { dynamic_button, dynamic_data, dynamic_condition } from '@/api/dynamic'
+import { auto_complete } from '@/api/autoComplete'
 import moment from 'moment'
 export default {
   data() {
@@ -75,7 +103,7 @@ export default {
         field: 'ID',
         order: 'descend'
       },
-      height: null,
+      selectedItem: {},
       paginationOption: {
         defaultCurrent: 1, // 默认当前页数
         defaultPageSize: 10, // 默认当前页显示数据的大小
@@ -103,6 +131,11 @@ export default {
     })
     dynamic_condition(this.$route.meta.permission).then(response => {
       this.conditions = response.data.condition
+      this.conditions.forEach(s => {
+        if (s.type == 4) {
+          s.value = undefined
+        }
+      })
       this.list()
     })
   },
@@ -148,6 +181,17 @@ export default {
       if (actionScope == 'parent') {
         this.$parent.$options.methods[actionName].bind(this.$parent)()
       }
+    },
+    handleSelectChange(value) {
+      this.selectedItem.value = this.selectedItem.options[value].obj.id + ''
+    },
+    handleSelectFocus(item) {
+      this.selectedItem = item
+    },
+    handleSearch(value) {
+      auto_complete(value, this.selectedItem.model, this.selectedItem.allRecords).then(response => {
+        this.selectedItem.options = response.data
+      })
     },
     handleTableChange(pagination, filters, { field, order }) {
       this.sort = {
