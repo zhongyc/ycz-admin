@@ -2,7 +2,13 @@
   <div>
     <page-header-wrapper :title="false">
       <template v-slot:content>
-        <div>这里放查询条件</div>
+        <a-row>
+          <template v-for="(item, index) in conditions">
+            <a-col :span="4" :key="index">
+              <a-input v-if="item.type === 1" v-model="item.value" :placeholder="item.label" allowClear />
+            </a-col>
+          </template>
+        </a-row>
       </template>
       <template v-slot:extra>
         <a-button-group class="button-group">
@@ -45,13 +51,14 @@
   </div>
 </template>
 <script>
-import { dynamic_button, dynamic_data } from '@/api/dynamic'
+import { dynamic_button, dynamic_data, dynamic_condition } from '@/api/dynamic'
 import moment from 'moment'
 export default {
   data() {
     return {
       app0: this,
       conditionButtons: [],
+      conditions: [],
       tableButtons: [],
       tableColumns: [],
       tableDatas: [],
@@ -59,36 +66,38 @@ export default {
       loading: false,
       sort: {
         field: 'ID',
-        order: 'descend',
+        order: 'descend'
       },
+      height: null,
       paginationOption: {
         defaultCurrent: 1, // 默认当前页数
         defaultPageSize: 10, // 默认当前页显示数据的大小
         total: 0, // 总数，必须先有
         showSizeChanger: true,
         showQuickJumper: true,
-        pageSizeOptions: ['5', '10', '15', '20'],
-        showTotal: (total) => `共 ${total} 条`, // 显示总数
+        pageSizeOptions: ['10', '20', '30', '50', '100'],
+        showTotal: total => `共 ${total} 条`, // 显示总数
         onShowSizeChange: (current, pageSize) => {
           this.paginationOption.defaultCurrent = 1
           this.paginationOption.defaultPageSize = pageSize
-          this.list() //显示列表的接口名称
         },
         // 改变每页数量时更新显示
         onChange: (current, size) => {
           this.paginationOption.defaultCurrent = current
           this.paginationOption.defaultPageSize = size
-          this.list()
-        },
-      },
+        }
+      }
     }
   },
   mounted() {
-    dynamic_button(this.$route.meta.permission).then((response) => {
+    dynamic_button(this.$route.meta.permission).then(response => {
       this.conditionButtons = response.data.conditionButtons
       this.tableButtons = response.data.tableButtons
     })
-    this.list()
+    dynamic_condition(this.$route.meta.permission).then(response => {
+      this.conditions = response.data.condition
+      this.list()
+    })
   },
   filters: {
     statusFilter(type, app0) {
@@ -101,7 +110,7 @@ export default {
       } else {
         return defaultColor
       }
-    },
+    }
   },
   methods: {
     list() {
@@ -110,10 +119,11 @@ export default {
         limit: this.paginationOption.defaultPageSize,
         page: this.paginationOption.defaultCurrent,
         sort: this.sort,
+        condition: this.conditions
       }
       this.loading = true
       dynamic_data(vo)
-        .then((response) => {
+        .then(response => {
           this.tableColumns = response.data.column
           this.tableDatas = response.data.list
           this.statusMap = response.data.statusMap
@@ -134,12 +144,9 @@ export default {
     },
     handleTableChange(pagination, filters, { field, order }) {
       this.sort = {
-        field: field || '',
-        order: order || '',
+        field: field || 'ID',
+        order: order || 'descend'
       }
-
-      console.log(this.sort)
-
       this.paginationOption.current = pagination.current
       this.list()
     },
@@ -156,8 +163,8 @@ export default {
     },
     rowClassName(record, index) {
       return index % 2 === 1 ? 'light-row' : ''
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -171,5 +178,8 @@ export default {
 }
 /deep/ .light-row {
   background-color: #fff;
+}
+/deep/ .ant-table-body {
+  overflow: auto;
 }
 </style>
