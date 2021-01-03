@@ -10,6 +10,12 @@ export default {
   methods: {
     add() {
       alert('add')
+    },
+    update(rowId) {
+      alert('update' + rowId)
+    },
+    delete(rowId) {
+      alert('delete' + rowId)
     }
   }
 }

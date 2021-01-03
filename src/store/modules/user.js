@@ -66,7 +66,9 @@ const user = {
             commit('SET_ROLES', role)
             commit('SET_INFO', result)
           } else {
-            reject(new Error('getInfo: roles must be a non-null array !'))
+            //reject(new Error('getInfo: roles must be a non-null array !'))
+            commit('SET_ROLES', {})
+            commit('SET_INFO', result)
           }
 
           commit('SET_NAME', { name: result.name, welcome: welcome() })

@@ -63,6 +63,21 @@
         @change="handleTableChange"
         :sortDirections="['descend', 'ascend']"
       >
+        <template slot="operation" slot-scope="text, record">
+          <template v-for="(item, index) in tableButtons">
+            <a-button
+              style="margin-right:2px"
+              size="small"
+              :type="item.type"
+              :key="index"
+              :icon="item.icon"
+              shape="circle"
+              ghost
+              @click="action(item.action, item.actionScope, record.ID)"
+            ></a-button>
+            <a-divider type="vertical" :key="index" v-if="index < tableButtons.length - 1" />
+          </template>
+        </template>
         <template slot="statusColumn" slot-scope="statusColumn">
           <a-tag :color="statusColumn | statusFilter(app0)">
             {{ statusColumn }}
@@ -128,15 +143,15 @@ export default {
     dynamic_button(this.$route.meta.permission).then(response => {
       this.conditionButtons = response.data.conditionButtons
       this.tableButtons = response.data.tableButtons
-    })
-    dynamic_condition(this.$route.meta.permission).then(response => {
-      this.conditions = response.data.condition
-      this.conditions.forEach(s => {
-        if (s.type == 4) {
-          s.value = undefined
-        }
+      dynamic_condition(this.$route.meta.permission).then(response => {
+        this.conditions = response.data.condition
+        this.conditions.forEach(s => {
+          if (s.type == 4) {
+            s.value = undefined
+          }
+        })
+        this.list()
       })
-      this.list()
     })
   },
   filters: {
@@ -169,17 +184,27 @@ export default {
           this.statusMap = response.data.statusMap
           this.paginationOption.total = response.data.total
           this.loading = false
+          if (this.tableButtons && this.tableButtons.length > 0) {
+            this.tableColumns.push({
+              width: this.tableButtons.length * 60,
+              title: '操作',
+              dataIndex: 'operation',
+              key: 'operation',
+              fixed: 'right',
+              scopedSlots: { customRender: 'operation' }
+            })
+          }
         })
         .catch(() => {
           this.loading = false
         })
     },
-    action(actionName, actionScope) {
+    action(actionName, actionScope, rowId) {
       if (actionScope == 'self') {
         this.$options.methods[actionName].bind(this)()
       }
       if (actionScope == 'parent') {
-        this.$parent.$options.methods[actionName].bind(this.$parent)()
+        this.$parent.$options.methods[actionName].bind(this.$parent)(rowId)
       }
     },
     handleSelectChange(value) {
