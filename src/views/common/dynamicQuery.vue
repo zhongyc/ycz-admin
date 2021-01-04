@@ -69,13 +69,14 @@
               style="margin-right:2px"
               size="small"
               :type="item.type"
-              :key="index"
+              :key="index + '1'"
               :icon="item.icon"
               shape="circle"
               ghost
+              :title="item.name"
               @click="action(item.action, item.actionScope, record.ID)"
             ></a-button>
-            <a-divider type="vertical" :key="index" v-if="index < tableButtons.length - 1" />
+            <a-divider type="vertical" :key="index + '2'" v-if="index < tableButtons.length - 1" />
           </template>
         </template>
         <template slot="statusColumn" slot-scope="statusColumn">
@@ -95,6 +96,9 @@
         <template slot="dateFormat4" slot-scope="dateFormat4">
           {{ getDate(dateFormat4, 'YYYY-MM-DD HH:mm:ss') }}
         </template>
+        <template slot="footer" slot-scope="currentPageData">
+          <a-table :showHeader="1 > 2" :columns="tableColumns" :data-source="tableSumDatas"> </a-table>
+        </template>
       </a-table>
     </page-header-wrapper>
   </div>
@@ -112,6 +116,7 @@ export default {
       tableButtons: [],
       tableColumns: [],
       tableDatas: [],
+      tableSumDatas: [],
       statusMap: [],
       loading: false,
       sort: {
@@ -183,21 +188,33 @@ export default {
           this.tableDatas = response.data.list
           this.statusMap = response.data.statusMap
           this.paginationOption.total = response.data.total
+          this.tableSumDatas = []
+          if (this.tableDatas && this.tableDatas.length > 0) {
+            this.tableSumDatas.push(Object.assign({}, this.tableDatas[0]))
+          }
           this.loading = false
           if (this.tableButtons && this.tableButtons.length > 0) {
-            this.tableColumns.push({
+            this.tableColumns.unshift({
               width: this.tableButtons.length * 60,
               title: '操作',
               dataIndex: 'operation',
               key: 'operation',
-              fixed: 'right',
+              fixed: 'left',
               scopedSlots: { customRender: 'operation' }
             })
           }
+          this.calSum()
         })
         .catch(() => {
           this.loading = false
         })
+    },
+    calSum() {
+      if (this.tableSumDatas.length > 0) {
+        this.tableColumns.forEach(s => {
+          this.tableSumDatas[0][s.dataIndex] = s.dataIndex === 'ID' ? '合计' : s.sum
+        })
+      }
     },
     action(actionName, actionScope, rowId) {
       if (actionScope == 'self') {
@@ -257,5 +274,8 @@ export default {
 }
 /deep/ .ant-table-body {
   overflow: auto;
+}
+/deep/ .ant-table-footer {
+  padding: 0px 0px;
 }
 </style>
