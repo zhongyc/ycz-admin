@@ -97,7 +97,11 @@
           {{ getDate(dateFormat4, 'YYYY-MM-DD HH:mm:ss') }}
         </template>
         <template slot="footer" slot-scope="currentPageData">
-          <a-table :showHeader="1 > 2" :columns="tableColumns" :data-source="tableSumDatas"> </a-table>
+          <a-table :showHeader="1 > 2" :columns="tableColumns" :data-source="tableSumDatas">
+            <template slot="IDColumn" slot-scope="IDColumn">
+              <div style="font-weight:600;font-size:14px">{{ IDColumn }}</div>
+            </template>
+          </a-table>
         </template>
       </a-table>
     </page-header-wrapper>
@@ -212,7 +216,12 @@ export default {
     calSum() {
       if (this.tableSumDatas.length > 0) {
         this.tableColumns.forEach(s => {
-          this.tableSumDatas[0][s.dataIndex] = s.dataIndex === 'ID' ? '合计' : s.sum
+          if (s.dataIndex === 'ID') {
+            s.scopedSlots = { customRender: 'IDColumn' }
+            this.tableSumDatas[0][s.dataIndex] = '合计'
+          } else {
+            this.tableSumDatas[0][s.dataIndex] = s.sum
+          }
         })
       }
     },
