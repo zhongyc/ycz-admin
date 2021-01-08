@@ -96,8 +96,8 @@
         <template slot="dateFormat4" slot-scope="dateFormat4">
           {{ getDate(dateFormat4, 'YYYY-MM-DD HH:mm:ss') }}
         </template>
-        <template slot="footer" slot-scope="currentPageData">
-          <a-table :showHeader="1 > 2" :columns="tableColumns" :data-source="tableSumDatas">
+        <template slot="footer">
+          <a-table :showHeader="1 > 2" :columns="tableColumns" :data-source="tableSumDatas" :pagination="1 > 2">
             <template slot="IDColumn" slot-scope="IDColumn">
               <div style="font-weight:600;font-size:14px">{{ IDColumn }}</div>
             </template>
@@ -108,7 +108,7 @@
   </div>
 </template>
 <script>
-import { dynamic_button, dynamic_data, dynamic_condition } from '@/api/dynamic'
+import { dynamic_query_button, dynamic_query_data, dynamic_query_condition } from '@/api/dynamicQuery'
 import { auto_complete } from '@/api/autoComplete'
 import moment from 'moment'
 export default {
@@ -149,10 +149,10 @@ export default {
     }
   },
   mounted() {
-    dynamic_button(this.$route.meta.permission).then(response => {
+    dynamic_query_button(this.$route.meta.permission).then(response => {
       this.conditionButtons = response.data.conditionButtons
       this.tableButtons = response.data.tableButtons
-      dynamic_condition(this.$route.meta.permission).then(response => {
+      dynamic_query_condition(this.$route.meta.permission).then(response => {
         this.conditions = response.data.condition
         this.conditions.forEach(s => {
           if (s.type == 4) {
@@ -186,7 +186,7 @@ export default {
         condition: this.conditions
       }
       this.loading = true
-      dynamic_data(vo)
+      dynamic_query_data(vo)
         .then(response => {
           this.tableColumns = response.data.column
           this.tableDatas = response.data.list
