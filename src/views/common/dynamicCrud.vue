@@ -7,11 +7,12 @@
       @ok="handleOk"
       @cancel="handleCancel"
       :maskClosable="1 > 2"
+      :confirm-loading="loading"
     >
       <a-form :form="form">
         <a-row>
-          <template v-for="(item, index) in columns">
-            <a-col :key="index" :span="8" v-if="item.inputType != 6">
+          <template v-for="(item, index) in smColumns">
+            <a-col :key="index" :span="8">
               <a-form-item :label="item.name" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
                 <a-input
                   v-if="item.inputType == 1"
@@ -87,8 +88,8 @@
           </template>
         </a-row>
         <a-row>
-          <template v-for="(item, index) in columns">
-            <a-col :key="index" :span="24" v-if="item.inputType == 6">
+          <template v-for="(item, index) in xsColumns">
+            <a-col :key="index" :span="24">
               <a-form-item :label="item.name" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }">
                 <a-textarea
                   v-if="item.inputType == 6"
@@ -106,8 +107,9 @@
   </div>
 </template>
 <script>
-import { dynamic_crud_column, dynamic_crud_relation_item } from '@/api/dynamicCrud'
+import { dynamic_crud_column, dynamic_crud_relation_item, dynamic_crud_save } from '@/api/dynamicCrud'
 import { auto_complete } from '@/api/autoComplete'
+import moment from 'moment'
 export default {
   data() {
     return {
@@ -116,13 +118,27 @@ export default {
       columns: [],
       type: null,
       autoCompleteItem: {},
-      formKey: 'dynamic_crud_rule'
+      formKey: 'dynamic_crud_rule',
+      loading: false
     }
   },
   mounted() {},
+  computed: {
+    smColumns() {
+      return this.columns.filter(s => {
+        return s.inputType != 6
+      })
+    },
+    xsColumns() {
+      return this.columns.filter(s => {
+        return s.inputType == 6
+      })
+    }
+  },
   methods: {
     async showAdd() {
       this.type = 1
+      this.loading = false
       this.form = this.$form.createForm(this, { name: this.formKey })
       await this.queryColumns()
       setTimeout(() => {
@@ -167,10 +183,43 @@ export default {
         }
       })
     },
+    async saveAdd(values) {
+      var that = this
+      await this.buildColumnValue(values)
+      that.loading = true
+      const reqestParam = { crudId: that.crudId, columns: that.columns }
+      console.log(reqestParam.columns)
+      dynamic_crud_save(reqestParam)
+        .then(response => {
+          that.loading = false
+        })
+        .catch(() => {
+          that.loading = false
+        })
+    },
+    buildColumnValue(values) {
+      var that = this
+      that.columns.forEach(s => {
+        if (values[s.name] != undefined) {
+          if (s.inputType == 3) {
+            s.value = moment(values[s.name]).format('YYYY-MM-DD')
+          } else {
+            s.value = values[s.name]
+          }
+        }
+      })
+    },
+    saveUpdate(values) {},
     handleOk(e) {
-      this.form.validateFields((err, values) => {
+      var that = this
+      that.form.validateFields((err, values) => {
         if (!err) {
-          console.log('Received values of form: ', values)
+          if (that.type == 1) {
+            that.saveAdd(values)
+          }
+          if (that.type == 2) {
+            that.saveUpdate(values)
+          }
         }
       })
     },
