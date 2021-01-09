@@ -14,6 +14,7 @@
             <a-col :key="index" :span="8">
               <a-form-item :label="item.name">
                 <a-input
+                  :id="item.dataIndex"
                   v-if="item.inputType == 1"
                   :placeholder="'请输入' + item.name"
                   v-decorator="
@@ -23,6 +24,7 @@
                   :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
                 />
                 <a-select
+                  :ref="item.dataIndex"
                   v-if="item.inputType == 2"
                   show-search
                   :placeholder="'请选择' + item.name"
@@ -40,6 +42,7 @@
                   </template>
                 </a-select>
                 <a-date-picker
+                  :ref="item.dataIndex"
                   v-if="item.inputType == 3"
                   :placeholder="'请选择' + item.name"
                   style="width:100%"
@@ -50,12 +53,12 @@
                   "
                 />
                 <a-select
+                  :ref="item.dataIndex"
                   show-search
                   v-if="item.inputType == 4"
                   style="width: 100%"
                   :placeholder="'请选择' + item.name"
                   :default-active-first-option="false"
-                  :show-arrow="false"
                   :filter-option="false"
                   :not-found-content="null"
                   @search="handleAutoCompleteSearch"
@@ -106,6 +109,32 @@ export default {
     async showAdd() {
       this.type = 1
       await this.queryColumns()
+      setTimeout(() => {
+        this.autoFocus('addEditable')
+      }, 500)
+    },
+    autoFocus(editable) {
+      for (var i = 0; i < this.columns.length; i++) {
+        if (this.columns[i][editable] != null && this.columns[i][editable] == 1) {
+          var id = 'dynamic_crud_rule_' + this.columns[i].name
+          var _dom = document.getElementById(id)
+          if (_dom.type == undefined) {
+            var _classList = _dom.classList
+            //日期组件
+            if (_classList.contains('ant-calendar-picker')) {
+              var input = _dom.getElementsByClassName('ant-calendar-picker-input')
+              _dom.focus()
+            }
+            //select组件
+            if (_classList.contains('ant-select')) {
+              _dom.focus()
+            }
+          } else {
+            _dom.focus()
+          }
+          break
+        }
+      }
     },
     queryColumns() {
       dynamic_crud_column(this.$route.meta.permission, this.type).then(response => {
