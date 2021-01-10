@@ -23,6 +23,9 @@ import './global.less' // global style
 
 Vue.config.productionTip = false
 
+import { FormModel } from 'ant-design-vue';
+Vue.use(FormModel);
+
 // mount axios to `Vue.$http` and `this.$http`
 Vue.use(VueAxios)
 // use pro-layout components

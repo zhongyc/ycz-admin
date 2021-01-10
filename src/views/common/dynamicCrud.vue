@@ -107,7 +107,12 @@
   </div>
 </template>
 <script>
-import { dynamic_crud_column, dynamic_crud_relation_item, dynamic_crud_save } from '@/api/dynamicCrud'
+import {
+  dynamic_crud_column,
+  dynamic_crud_relation_item,
+  dynamic_crud_save,
+  dynamic_crud_item
+} from '@/api/dynamicCrud'
 import { auto_complete } from '@/api/autoComplete'
 import moment from 'moment'
 export default {
@@ -145,6 +150,31 @@ export default {
         this.autoFocus('addEditable')
       }, 500)
     },
+    async showUpdate(id) {
+      this.type = 2
+      this.loading = false
+      this.form = this.$form.createForm(this, { name: this.formKey })
+      await this.queryColumns(id)
+
+      setTimeout(() => {
+        this.autoFocus('updateEditable')
+      }, 500)
+    },
+    initData(id) {
+      var that = this
+      const requestParam = { id: id, crudId: this.crudId, columns: this.columns }
+      dynamic_crud_item(requestParam).then(response => {
+        var obj = response.data
+        that.columns.forEach(s => {
+          //日期组件
+          if (s.inputType == 3 && obj[s.name] != null) {
+            var dateObj = new Date(obj[s.name])
+            obj[s.name] = moment(dateObj, 'YYYY-MM-DD')
+          }
+        })
+        that.form.setFieldsValue(obj)
+      })
+    },
     autoFocus(editable) {
       for (var i = 0; i < this.columns.length; i++) {
         if (this.columns[i][editable] != null && this.columns[i][editable] == 1) {
@@ -168,10 +198,13 @@ export default {
         }
       }
     },
-    queryColumns() {
+    queryColumns(id) {
       dynamic_crud_column(this.$route.meta.permission, this.type).then(response => {
         this.crudId = response.data.crudId
         this.columns = response.data.columns
+        if (this.type == 2 || this.type == 3) {
+          this.initData(id)
+        }
         if (this.columns) {
           this.columns.forEach(s => {
             if (s.relationTable != null && s.relationTable != '') {
@@ -187,9 +220,8 @@ export default {
       var that = this
       await this.buildColumnValue(values)
       that.loading = true
-      const reqestParam = { crudId: that.crudId, columns: that.columns }
-      console.log(reqestParam.columns)
-      dynamic_crud_save(reqestParam)
+      const requestParam = { id: null, crudId: that.crudId, columns: that.columns }
+      dynamic_crud_save(requestParam)
         .then(response => {
           that.loading = false
           this.type = ''

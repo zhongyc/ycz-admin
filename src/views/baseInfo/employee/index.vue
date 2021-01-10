@@ -19,7 +19,7 @@ export default {
       this.$refs.dynamicCrud.showAdd()
     },
     update(rowId) {
-      alert('update' + rowId)
+      this.$refs.dynamicCrud.showUpdate(rowId)
     },
     delete(rowId) {
       alert('delete' + rowId)
