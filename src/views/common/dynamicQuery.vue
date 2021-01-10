@@ -96,7 +96,7 @@
         <template slot="dateFormat4" slot-scope="dateFormat4">
           {{ getDate(dateFormat4, 'YYYY-MM-DD HH:mm:ss') }}
         </template>
-        <template slot="footer">
+        <template slot="footer" v-if="hasSum">
           <a-table :showHeader="1 > 2" :columns="tableColumns" :data-source="tableSumDatas" :pagination="1 > 2">
             <template slot="IDColumn" slot-scope="IDColumn">
               <div style="font-weight:600;font-size:14px">{{ IDColumn }}</div>
@@ -174,6 +174,16 @@ export default {
       } else {
         return defaultColor
       }
+    }
+  },
+  computed: {
+    hasSum() {
+      for (var i = 0; i < this.tableColumns.length; i++) {
+        if (this.tableColumns[i].summation != null && this.tableColumns[i].summation == 1) {
+          return true
+        }
+      }
+      return false
     }
   },
   methods: {

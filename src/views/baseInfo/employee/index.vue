@@ -23,6 +23,9 @@ export default {
     },
     delete(rowId) {
       alert('delete' + rowId)
+    },
+    back() {
+      this.$refs.dynamicQuery.list()
     }
   }
 }

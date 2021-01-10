@@ -192,6 +192,8 @@ export default {
       dynamic_crud_save(reqestParam)
         .then(response => {
           that.loading = false
+          this.type = ''
+          this.$parent.back()
         })
         .catch(() => {
           that.loading = false
