@@ -111,7 +111,8 @@ import {
   dynamic_crud_column,
   dynamic_crud_relation_item,
   dynamic_crud_save,
-  dynamic_crud_item
+  dynamic_crud_item,
+  dynamic_crud_update
 } from '@/api/dynamicCrud'
 import { auto_complete } from '@/api/autoComplete'
 import moment from 'moment'
@@ -124,7 +125,8 @@ export default {
       type: null,
       autoCompleteItem: {},
       formKey: 'dynamic_crud_rule',
-      loading: false
+      loading: false,
+      rowId: null
     }
   },
   mounted() {},
@@ -153,9 +155,9 @@ export default {
     async showUpdate(id) {
       this.type = 2
       this.loading = false
+      this.rowId = id
       this.form = this.$form.createForm(this, { name: this.formKey })
       await this.queryColumns(id)
-
       setTimeout(() => {
         this.autoFocus('updateEditable')
       }, 500)
@@ -218,14 +220,37 @@ export default {
     },
     async saveAdd(values) {
       var that = this
-      await this.buildColumnValue(values)
+      await that.buildColumnValue(values)
       that.loading = true
       const requestParam = { id: null, crudId: that.crudId, columns: that.columns }
       dynamic_crud_save(requestParam)
         .then(response => {
           that.loading = false
-          this.type = ''
-          this.$parent.back()
+          that.type = ''
+          that.$notification.success({
+            message: '新增操作',
+            description: `保存成功`
+          })
+          that.$parent.back()
+        })
+        .catch(() => {
+          that.loading = false
+        })
+    },
+    async saveUpdate(values) {
+      var that = this
+      await that.buildColumnValue(values)
+      that.loading = true
+      const requestParam = { id: that.rowId, crudId: that.crudId, columns: that.columns }
+      dynamic_crud_update(requestParam)
+        .then(response => {
+          that.loading = false
+          that.type = ''
+          that.$notification.success({
+            message: '更新操作',
+            description: `保存成功`
+          })
+          that.$parent.back()
         })
         .catch(() => {
           that.loading = false
@@ -243,7 +268,6 @@ export default {
         }
       })
     },
-    saveUpdate(values) {},
     handleOk(e) {
       var that = this
       that.form.validateFields((err, values) => {
