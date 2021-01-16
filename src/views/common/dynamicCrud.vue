@@ -18,7 +18,7 @@
                   v-if="item.inputType == 1"
                   :placeholder="'请输入' + item.name"
                   v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                  :allowClear="item.allowClear && item.allowClear == 1"
+                  :allowClear="item.allowClear != null && item.allowClear == 1"
                   :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
                 />
                 <a-select
@@ -26,7 +26,7 @@
                   show-search
                   :placeholder="'请选择' + item.name"
                   option-filter-prop="children"
-                  :allowClear="item.allowClear && item.allowClear == 1"
+                  :allowClear="item.allowClear != null && item.allowClear == 1"
                   :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
                   v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
                 >
@@ -40,7 +40,7 @@
                   v-if="item.inputType == 3"
                   :placeholder="'请选择' + item.name"
                   style="width:100%"
-                  :allowClear="item.allowClear && item.allowClear == 1"
+                  :allowClear="item.allowClear != null && item.allowClear == 1"
                   :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
                   v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
                 />
@@ -55,7 +55,7 @@
                   @search="handleAutoCompleteSearch"
                   @focus="handleAutoCompleteFocus(item)"
                   optionLabelProp="label"
-                  :allowClear="item.allowClear && item.allowClear == 1"
+                  :allowClear="item.allowClear != null && item.allowClear == 1"
                   v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
                 >
                   <template v-for="(col, index_col) in autoCompleteItem.autoCompleteOptions">
@@ -74,7 +74,7 @@
                 </a-select>
                 <a-radio-group
                   v-if="item.inputType == 5"
-                  :allowClear="item.allowClear && item.allowClear == 1"
+                  :allowClear="item.allowClear != null && item.allowClear == 1"
                   v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
                 >
                   <template v-for="(aitem, aindex) in item.relationItems">
@@ -95,7 +95,7 @@
                   v-if="item.inputType == 6"
                   :placeholder="'请输入' + item.name"
                   v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                  :allowClear="item.allowClear && item.allowClear == 1"
+                  :allowClear="item.allowClear != null && item.allowClear == 1"
                   :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
                 />
               </a-form-item>

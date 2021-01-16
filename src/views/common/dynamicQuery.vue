@@ -75,12 +75,17 @@
               ghost
               :title="item.name"
               @click="action(item.action, item.actionScope, record.ID)"
+              v-if="record.ID != '合计'"
             ></a-button>
-            <a-divider type="vertical" :key="index + '2'" v-if="index < tableButtons.length - 1" />
+            <a-divider
+              type="vertical"
+              :key="index + '2'"
+              v-if="index < tableButtons.length - 1 && record.ID != '合计'"
+            />
           </template>
         </template>
         <template slot="statusColumn" slot-scope="statusColumn">
-          <a-tag :color="statusColumn | statusFilter(app0)">
+          <a-tag :color="statusColumn | statusFilter(app0)" v-if="statusColumn != null">
             {{ statusColumn }}
           </a-tag>
         </template>
@@ -96,12 +101,9 @@
         <template slot="dateFormat4" slot-scope="dateFormat4">
           {{ getDate(dateFormat4, 'YYYY-MM-DD HH:mm:ss') }}
         </template>
-        <template slot="footer" v-if="hasSum">
-          <a-table :showHeader="1 > 2" :columns="tableColumns" :data-source="tableSumDatas" :pagination="1 > 2">
-            <template slot="IDColumn" slot-scope="IDColumn">
-              <div style="font-weight:600;font-size:14px">{{ IDColumn }}</div>
-            </template>
-          </a-table>
+        <template slot="IDColumn" slot-scope="IDColumn">
+          <div style="font-weight:600;font-size:14px;" v-if="IDColumn == '合计'">{{ IDColumn }}</div>
+          <div v-else>{{ IDColumn }}</div>
         </template>
       </a-table>
     </page-header-wrapper>
@@ -120,7 +122,6 @@ export default {
       tableButtons: [],
       tableColumns: [],
       tableDatas: [],
-      tableSumDatas: [],
       statusMap: [],
       loading: false,
       sort: {
@@ -202,10 +203,6 @@ export default {
           this.tableDatas = response.data.list
           this.statusMap = response.data.statusMap
           this.paginationOption.total = response.data.total
-          this.tableSumDatas = []
-          if (this.tableDatas && this.tableDatas.length > 0) {
-            this.tableSumDatas.push(Object.assign({}, this.tableDatas[0]))
-          }
           this.loading = false
           if (this.tableButtons && this.tableButtons.length > 0) {
             this.tableColumns.unshift({
@@ -224,15 +221,19 @@ export default {
         })
     },
     calSum() {
-      if (this.tableSumDatas.length > 0) {
+      if (this.tableDatas.length > 0) {
+        var a = Object.assign({}, this.tableDatas[0])
+        a.ID = a.ID + '_sum'
+        a.key = a.key + '_sum'
         this.tableColumns.forEach(s => {
           if (s.dataIndex === 'ID') {
             s.scopedSlots = { customRender: 'IDColumn' }
-            this.tableSumDatas[0][s.dataIndex] = '合计'
+            a[s.dataIndex] = '合计'
           } else {
-            this.tableSumDatas[0][s.dataIndex] = s.sum
+            a[s.dataIndex] = s.sum
           }
         })
+        this.tableDatas.push(a)
       }
     },
     action(actionName, actionScope, rowId) {
