@@ -147,7 +147,7 @@ export default {
       this.type = 1
       this.loading = false
       this.form = this.$form.createForm(this, { name: this.formKey })
-      await this.queryColumns()
+      await this.queryColumns(1)
       setTimeout(() => {
         this.autoFocus('addEditable')
       }, 500)
@@ -164,7 +164,7 @@ export default {
     },
     initData(id) {
       var that = this
-      const requestParam = { id: id, crudId: this.crudId, columns: this.columns }
+      const requestParam = { id: id, crudId: this.crudId, columns: this.columns, type: this.type }
       dynamic_crud_item(requestParam).then(response => {
         var obj = response.data
         that.columns.forEach(s => {
@@ -222,7 +222,7 @@ export default {
       var that = this
       await that.buildColumnValue(values)
       that.loading = true
-      const requestParam = { id: null, crudId: that.crudId, columns: that.columns }
+      const requestParam = { id: null, crudId: that.crudId, columns: that.columns, type: 1 }
       dynamic_crud_save(requestParam)
         .then(response => {
           that.loading = false
@@ -241,7 +241,7 @@ export default {
       var that = this
       await that.buildColumnValue(values)
       that.loading = true
-      const requestParam = { id: that.rowId, crudId: that.crudId, columns: that.columns }
+      const requestParam = { id: that.rowId, crudId: that.crudId, columns: that.columns, type: 2 }
       dynamic_crud_update(requestParam)
         .then(response => {
           that.loading = false
