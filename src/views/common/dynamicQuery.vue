@@ -47,9 +47,24 @@
       <template v-slot:extra>
         <a-button-group class="button-group">
           <template v-for="(item, index) in conditionButtons">
-            <a-button :type="item.type" :key="index" :icon="item.icon" @click="action(item.action, item.actionScope)">{{
-              item.name
-            }}</a-button>
+            <a-popconfirm
+              :key="index"
+              :title="'确定要' + item.name + '吗？'"
+              v-if="item.confirm != null && item.confirm == 1"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="action(item.action, item.actionScope)"
+            >
+              <a-button :type="item.type" :key="index" :icon="item.icon">{{ item.name }}</a-button>
+            </a-popconfirm>
+            <a-button
+              v-else
+              :type="item.type"
+              :key="index"
+              :icon="item.icon"
+              @click="action(item.action, item.actionScope)"
+              >{{ item.name }}</a-button
+            >
           </template>
         </a-button-group>
       </template>
@@ -65,7 +80,28 @@
       >
         <template slot="operation" slot-scope="text, record">
           <template v-for="(item, index) in tableButtons">
+            <a-popconfirm
+              :key="index"
+              :title="'确定要' + item.name + '吗？'"
+              v-if="item.confirm != null && item.confirm == 1"
+              ok-text="确定"
+              cancel-text="取消"
+              @confirm="action(item.action, item.actionScope, record.ID)"
+            >
+              <a-button
+                style="margin-right:2px"
+                size="small"
+                :type="item.type"
+                :key="index + '1'"
+                :icon="item.icon"
+                shape="circle"
+                ghost
+                :title="item.name"
+                v-if="record.ID != '合计'"
+              ></a-button>
+            </a-popconfirm>
             <a-button
+              v-else
               style="margin-right:2px"
               size="small"
               :type="item.type"
@@ -75,7 +111,7 @@
               ghost
               :title="item.name"
               @click="action(item.action, item.actionScope, record.ID)"
-              v-if="record.ID != '合计'"
+              v-show="record.ID != '合计'"
             ></a-button>
             <a-divider
               type="vertical"
