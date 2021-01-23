@@ -10,100 +10,144 @@
       :confirm-loading="loading"
       :ok-button-props="{ props: { disabled: type != 1 && type != 2 } }"
     >
-      <a-form :form="form">
-        <a-row>
-          <template v-for="(item, index) in smColumns">
-            <a-col :key="index" :span="8">
-              <a-form-item :label="item.name" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
-                <a-input
-                  v-if="item.inputType == 1"
-                  :placeholder="'请输入' + item.name"
-                  v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                  :allowClear="item.allowClear != null && item.allowClear == 1"
-                  :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
-                />
-                <a-select
-                  v-if="item.inputType == 2"
-                  show-search
-                  :placeholder="'请选择' + item.name"
-                  option-filter-prop="children"
-                  :allowClear="item.allowClear != null && item.allowClear == 1"
-                  :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
-                  v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                >
-                  <template v-for="(aitem, aindex) in item.relationItems">
-                    <a-select-option :value="aitem.dataValue" :key="aindex">
-                      {{ aitem.name }}
-                    </a-select-option>
-                  </template>
-                </a-select>
-                <a-date-picker
-                  v-if="item.inputType == 3"
-                  :placeholder="'请选择' + item.name"
-                  style="width:100%"
-                  :allowClear="item.allowClear != null && item.allowClear == 1"
-                  :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
-                  v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                />
-                <a-select
-                  show-search
-                  v-if="item.inputType == 4"
-                  style="width: 100%"
-                  :placeholder="'请选择' + item.name"
-                  :default-active-first-option="false"
-                  :filter-option="false"
-                  :not-found-content="null"
-                  @search="handleAutoCompleteSearch"
-                  @focus="handleAutoCompleteFocus(item)"
-                  optionLabelProp="label"
-                  :allowClear="item.allowClear != null && item.allowClear == 1"
-                  v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                >
-                  <template v-for="(col, index_col) in autoCompleteItem.autoCompleteOptions">
-                    <a-select-option :value="col.obj['id']" :label="col.obj['name']" :key="index_col">
-                      <a-row>
-                        <template v-for="(displayColumn, index_display) in col.columns">
-                          <a-col :key="index_display" :span="displayColumn.span">
-                            <div>
-                              {{ col.obj[displayColumn.dataIndex] }}
-                            </div>
-                          </a-col>
-                        </template>
-                      </a-row>
-                    </a-select-option>
-                  </template>
-                </a-select>
-                <a-radio-group
-                  v-if="item.inputType == 5"
-                  :allowClear="item.allowClear != null && item.allowClear == 1"
-                  v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                >
-                  <template v-for="(aitem, aindex) in item.relationItems">
-                    <a-radio :value="aitem.dataValue" :key="aindex">
-                      {{ aitem.name }}
-                    </a-radio>
-                  </template>
-                </a-radio-group>
-              </a-form-item>
-            </a-col>
-          </template>
-        </a-row>
-        <a-row>
-          <template v-for="(item, index) in xsColumns">
-            <a-col :key="index" :span="24">
-              <a-form-item :label="item.name" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }">
-                <a-textarea
-                  v-if="item.inputType == 6"
-                  :placeholder="'请输入' + item.name"
-                  v-decorator="[item.name, { rules: [{ required: item.required, message: item.name + '不能为空' }] }]"
-                  :allowClear="item.allowClear != null && item.allowClear == 1"
-                  :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
-                />
-              </a-form-item>
-            </a-col>
-          </template>
-        </a-row>
-      </a-form>
+      <a-tabs default-active-key="1" tabPosition="left" v-if="type != ''">
+        <a-tab-pane key="1">
+          <span slot="tab">
+            <a-icon type="read" />
+          </span>
+          <a-form :form="form">
+            <a-row>
+              <template v-for="(item, index) in smColumns">
+                <a-col :key="index" :span="8">
+                  <a-form-item :label="item.name" :label-col="{ span: 6 }" :wrapper-col="{ span: 18 }">
+                    <a-input
+                      v-if="item.inputType == 1"
+                      :placeholder="'请输入' + item.name"
+                      v-decorator="[
+                        item.name,
+                        { rules: [{ required: item.required, message: item.name + '不能为空' }] }
+                      ]"
+                      :allowClear="item.allowClear != null && item.allowClear == 1"
+                      :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
+                    />
+                    <a-select
+                      v-if="item.inputType == 2"
+                      show-search
+                      :placeholder="'请选择' + item.name"
+                      option-filter-prop="children"
+                      :allowClear="item.allowClear != null && item.allowClear == 1"
+                      :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
+                      v-decorator="[
+                        item.name,
+                        { rules: [{ required: item.required, message: item.name + '不能为空' }] }
+                      ]"
+                    >
+                      <template v-for="(aitem, aindex) in item.relationItems">
+                        <a-select-option :value="aitem.dataValue" :key="aindex">
+                          {{ aitem.name }}
+                        </a-select-option>
+                      </template>
+                    </a-select>
+                    <a-date-picker
+                      v-if="item.inputType == 3"
+                      :placeholder="'请选择' + item.name"
+                      style="width:100%"
+                      :allowClear="item.allowClear != null && item.allowClear == 1"
+                      :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
+                      v-decorator="[
+                        item.name,
+                        { rules: [{ required: item.required, message: item.name + '不能为空' }] }
+                      ]"
+                    />
+                    <a-select
+                      show-search
+                      v-if="item.inputType == 4"
+                      style="width: 100%"
+                      :placeholder="'请选择' + item.name"
+                      :default-active-first-option="false"
+                      :filter-option="false"
+                      :not-found-content="null"
+                      @search="handleAutoCompleteSearch"
+                      @focus="handleAutoCompleteFocus(item)"
+                      optionLabelProp="label"
+                      :allowClear="item.allowClear != null && item.allowClear == 1"
+                      v-decorator="[
+                        item.name,
+                        { rules: [{ required: item.required, message: item.name + '不能为空' }] }
+                      ]"
+                    >
+                      <template v-for="(col, index_col) in autoCompleteItem.autoCompleteOptions">
+                        <a-select-option :value="col.obj['id']" :label="col.obj['name']" :key="index_col">
+                          <a-row>
+                            <template v-for="(displayColumn, index_display) in col.columns">
+                              <a-col :key="index_display" :span="displayColumn.span">
+                                <div>
+                                  {{ col.obj[displayColumn.dataIndex] }}
+                                </div>
+                              </a-col>
+                            </template>
+                          </a-row>
+                        </a-select-option>
+                      </template>
+                    </a-select>
+                    <a-radio-group
+                      v-if="item.inputType == 5"
+                      :allowClear="item.allowClear != null && item.allowClear == 1"
+                      v-decorator="[
+                        item.name,
+                        { rules: [{ required: item.required, message: item.name + '不能为空' }] }
+                      ]"
+                    >
+                      <template v-for="(aitem, aindex) in item.relationItems">
+                        <a-radio :value="aitem.dataValue" :key="aindex">
+                          {{ aitem.name }}
+                        </a-radio>
+                      </template>
+                    </a-radio-group>
+                  </a-form-item>
+                </a-col>
+              </template>
+            </a-row>
+            <a-row>
+              <template v-for="(item, index) in xsColumns">
+                <a-col :key="index" :span="24">
+                  <a-form-item :label="item.name" :label-col="{ span: 2 }" :wrapper-col="{ span: 22 }">
+                    <a-textarea
+                      v-if="item.inputType == 6"
+                      :placeholder="'请输入' + item.name"
+                      v-decorator="[
+                        item.name,
+                        { rules: [{ required: item.required, message: item.name + '不能为空' }] }
+                      ]"
+                      :allowClear="item.allowClear != null && item.allowClear == 1"
+                      :disabled="type == 1 ? item.addEditable != 1 : type == 2 ? item.updateEditable != 1 : false"
+                    />
+                  </a-form-item>
+                </a-col>
+              </template>
+            </a-row>
+          </a-form>
+        </a-tab-pane>
+        <a-tab-pane key="2" v-if="type != 1">
+          <span slot="tab">
+            <a-icon type="hourglass" />
+          </span>
+          <div>
+            <a-list item-layout="horizontal" :data-source="logs">
+              <a-list-item slot="renderItem" slot-scope="item, index">
+                <a-list-item-meta :description="item.content" :key="index">
+                  <a slot="title"
+                    ><a-tag color="#87d068" v-if="item.typeId == 1"> 新增 </a-tag>
+                    <a-tag color="#108ee9" v-if="item.typeId == 2"> 修改 </a-tag>
+                    <a-tag color="#f50" v-if="item.typeId == 3"> 删除 </a-tag>
+                    {{ getDate(item.creDate, 'YYYY-MM-DD HH:mm:ss') }}【{{ item.creEmp }}】</a
+                  >
+                </a-list-item-meta>
+              </a-list-item>
+            </a-list>
+          </div>
+        </a-tab-pane>
+      </a-tabs>
     </a-modal>
   </div>
 </template>
@@ -113,7 +157,8 @@ import {
   dynamic_crud_relation_item,
   dynamic_crud_save,
   dynamic_crud_item,
-  dynamic_crud_update
+  dynamic_crud_update,
+  dynamic_crud_log
 } from '@/api/dynamicCrud'
 import { auto_complete } from '@/api/autoComplete'
 import moment from 'moment'
@@ -127,7 +172,9 @@ export default {
       autoCompleteItem: {},
       formKey: 'dynamic_crud_rule',
       loading: false,
-      rowId: null
+      rowId: null,
+      logs: [],
+      activeKey: 1
     }
   },
   mounted() {},
@@ -147,6 +194,7 @@ export default {
     async showAdd() {
       this.type = 1
       this.loading = false
+      this.activeKey = 1
       this.form = this.$form.createForm(this, { name: this.formKey })
       await this.queryColumns(1)
       setTimeout(() => {
@@ -157,8 +205,10 @@ export default {
       this.type = 2
       this.loading = false
       this.rowId = id
+      this.activeKey = 1
       this.form = this.$form.createForm(this, { name: this.formKey })
       await this.queryColumns(id)
+      this.queryLogs(id)
       setTimeout(() => {
         this.autoFocus('updateEditable')
       }, 500)
@@ -167,11 +217,21 @@ export default {
       this.type = 3
       this.loading = false
       this.rowId = id
+      this.activeKey = 1
       this.form = this.$form.createForm(this, { name: this.formKey })
       await this.queryColumns(id)
+      this.queryLogs(id)
       setTimeout(() => {
         this.autoFocus('updateEditable')
       }, 500)
+    },
+    queryLogs(id) {
+      dynamic_crud_log(id, this.$route.meta.permission).then(response => {
+        this.logs = response.data
+      })
+    },
+    getDate(row, format) {
+      return moment(row).format(format)
     },
     initData(id) {
       var that = this
@@ -231,6 +291,7 @@ export default {
     },
     async saveAdd(values) {
       var that = this
+      console.log(values)
       await that.buildColumnValue(values)
       that.loading = true
       const requestParam = { id: null, crudId: that.crudId, columns: that.columns, type: 1 }
