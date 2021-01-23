@@ -213,16 +213,6 @@ export default {
       }
     }
   },
-  computed: {
-    hasSum() {
-      for (var i = 0; i < this.tableColumns.length; i++) {
-        if (this.tableColumns[i].summation != null && this.tableColumns[i].summation == 1) {
-          return true
-        }
-      }
-      return false
-    }
-  },
   methods: {
     list() {
       const vo = {
@@ -261,7 +251,11 @@ export default {
         var a = Object.assign({}, this.tableDatas[0])
         a.ID = a.ID + '_sum'
         a.key = a.key + '_sum'
+        var hasSum = false
         this.tableColumns.forEach(s => {
+          if (s.summation != null && s.summation == 1) {
+            hasSum = true
+          }
           if (s.dataIndex === 'ID') {
             s.scopedSlots = { customRender: 'IDColumn' }
             a[s.dataIndex] = '合计'
@@ -269,7 +263,9 @@ export default {
             a[s.dataIndex] = s.sum
           }
         })
-        this.tableDatas.push(a)
+        if (hasSum) {
+          this.tableDatas.push(a)
+        }
       }
     },
     action(actionName, actionScope, rowId) {

@@ -1,7 +1,7 @@
 <template>
   <div>
     <dynamic-query ref="dynamicQuery" />
-    <dynamic-crud ref="dynamicCrud" v-show="this.$refs.dynamicCrud != null && this.$refs.dynamicCrud.type == 'add'" />
+    <dynamic-crud ref="dynamicCrud" v-show="this.$refs.dynamicCrud != null && this.$refs.dynamicCrud.type != ''" />
   </div>
 </template>
 <script>
@@ -35,6 +35,10 @@ export default {
         })
         this.back()
       })
+    },
+    detail(rowId) {
+      var that = this
+      that.$refs.dynamicCrud.showDetail(rowId)
     },
     back() {
       this.$refs.dynamicQuery.list()

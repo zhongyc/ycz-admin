@@ -8,6 +8,7 @@
       @cancel="handleCancel"
       :maskClosable="1 > 2"
       :confirm-loading="loading"
+      :ok-button-props="{ props: { disabled: type != 1 && type != 2 } }"
     >
       <a-form :form="form">
         <a-row>
@@ -154,6 +155,16 @@ export default {
     },
     async showUpdate(id) {
       this.type = 2
+      this.loading = false
+      this.rowId = id
+      this.form = this.$form.createForm(this, { name: this.formKey })
+      await this.queryColumns(id)
+      setTimeout(() => {
+        this.autoFocus('updateEditable')
+      }, 500)
+    },
+    async showDetail(id) {
+      this.type = 3
       this.loading = false
       this.rowId = id
       this.form = this.$form.createForm(this, { name: this.formKey })
