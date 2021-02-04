@@ -97,7 +97,6 @@
                 shape="circle"
                 ghost
                 :title="item.name"
-                v-if="record.ID != '合计'"
               ></a-button>
             </a-popconfirm>
             <a-button
@@ -111,13 +110,8 @@
               ghost
               :title="item.name"
               @click="action(item.action, item.actionScope, record.ID)"
-              v-show="record.ID != '合计'"
             ></a-button>
-            <a-divider
-              type="vertical"
-              :key="index + '2'"
-              v-if="index < tableButtons.length - 1 && record.ID != '合计'"
-            />
+            <a-divider type="vertical" :key="index + '2'" v-if="index < tableButtons.length - 1" />
           </template>
         </template>
         <template slot="statusColumn" slot-scope="statusColumn">
@@ -137,9 +131,14 @@
         <template slot="dateFormat4" slot-scope="dateFormat4">
           {{ getDate(dateFormat4, 'YYYY-MM-DD HH:mm:ss') }}
         </template>
-        <template slot="IDColumn" slot-scope="IDColumn">
-          <div style="font-weight:600;font-size:14px;" v-if="IDColumn == '合计'">{{ IDColumn }}</div>
-          <div v-else>{{ IDColumn }}</div>
+        <template slot="footer" v-if="tableSumDatas.length > 0">
+          <a-row style="padding-left:10px;padding-top:10px;padding-bottom:10px">
+            <template v-for="(a, i) in tableColumns">
+              <a-col v-if="a.sum" :span="2" :key="i">
+                <a-tag color="cyan"> {{ a.title }}合计：{{ tableSumDatas[0][a.dataIndex] }} </a-tag>
+              </a-col>
+            </template>
+          </a-row>
         </template>
       </a-table>
     </page-header-wrapper>
@@ -158,6 +157,7 @@ export default {
       tableButtons: [],
       tableColumns: [],
       tableDatas: [],
+      tableSumDatas: [],
       statusMap: [],
       loading: false,
       sort: {
@@ -227,6 +227,7 @@ export default {
         .then(response => {
           this.tableColumns = response.data.column
           this.tableDatas = response.data.list
+          this.tableSumDatas = []
           this.statusMap = response.data.statusMap
           this.paginationOption.total = response.data.total
           this.loading = false
@@ -256,15 +257,10 @@ export default {
           if (s.summation != null && s.summation == 1) {
             hasSum = true
           }
-          if (s.dataIndex === 'ID') {
-            s.scopedSlots = { customRender: 'IDColumn' }
-            a[s.dataIndex] = '合计'
-          } else {
-            a[s.dataIndex] = s.sum
-          }
+          a[s.dataIndex] = s.sum
         })
         if (hasSum) {
-          this.tableDatas.push(a)
+          this.tableSumDatas.push(a)
         }
       }
     },
