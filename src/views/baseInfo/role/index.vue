@@ -1,6 +1,6 @@
 <template>
   <div>
-    <dynamic-page ref="dynamicPage" />
+    <dynamic-page ref="dynamicPage"> </dynamic-page>
   </div>
 </template>
 <script>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <dynamic-query ref="dynamicQuery" />
+    <dynamic-query ref="dynamicQuery"> </dynamic-query>
     <dynamic-crud ref="dynamicCrud" v-show="this.$refs.dynamicCrud != null && this.$refs.dynamicCrud.type != ''" />
   </div>
 </template>
